@@ -1,0 +1,61 @@
+version: "3"
+services:
+  apache:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: php7-apache2
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../projetos:/var/www/html
+      - ./config/php/local.ini:/etc/php/conf.d/local.ini
+      - ./config/apache/etc/hosts:/etc/hosts
+    depends_on:
+      - php-mysql
+      - php-postgres
+      - php-redis
+    links:
+      - php-mysql
+      - php-postgres
+      - php-redis
+
+  php-mysql:
+    image: mysql:5.7.22
+    container_name: php-mysql
+    restart: always
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: myuser
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./db/mysql/data:/var/lib/mysql/
+      - ./db/mysql/my.cnf:/etc/mysql/my.cnf
+
+  php-postgres:
+    image: postgres
+    container_name: php-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/postgres/data:/var/lib/postgresql/data"
+
+  php-redis:
+    image: redis:alpine
+    container_name: php-redis
+    restart: always
+    command: redis-server --requirepass secret
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
