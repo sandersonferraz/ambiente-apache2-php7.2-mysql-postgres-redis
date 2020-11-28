@@ -61,4 +61,4 @@
 
 
 
-## HAVE AGOOD TIME!!!
+## HAVE A GOOD TIME!!!
